@@ -13,60 +13,20 @@
         </style>
     </head>
 <body>
-    <script type="text/javascript">
+    <script type="module">
+        import SquirrelMan from './src/SquirrelMan.js';
+        import idlePlayerFrames from './src/frames/player/idle.js';
+        import runningPlayerFrames from './src/frames/player/running.js';
+    
         let type = "WebGL"
 
         if(!PIXI.utils.isWebGLSupported()){
             type = "canvas"
         }
 
-        class SquirrelMan {
-            constructor(){
-                this.pixiApplication = new PIXI.Application({
-                    width: window.innerWidth,
-                    height: window.innerHeight,
-                    antialias: true,
-                    transparent: false,
-                    resolution: 1
-                });
-            }
-
-            get view(){
-                return this.pixiApplication.view;
-            }
-
-            get stage() {
-                return this.pixiApplication.stage;
-            }
-
-            get renderer() {
-                return this.pixiApplication.renderer;
-            }
-
-            get ticker() {
-                return this.pixiApplication.ticker;
-            }
-        }
-
         const squirrelMan = new SquirrelMan();
 
         document.body.appendChild(squirrelMan.view);
-
-        let idlePlayerFrames = [
-                "images/png/sprites/player/idle/player-idle-1.png",
-                "images/png/sprites/player/idle/player-idle-2.png",
-                "images/png/sprites/player/idle/player-idle-3.png",
-                "images/png/sprites/player/idle/player-idle-4.png"
-            ];
-
-            let runningPlayerFrames = [
-                "images/png/sprites/player/run/player-run-1.png",
-                "images/png/sprites/player/run/player-run-2.png",
-                "images/png/sprites/player/run/player-run-3.png",
-                "images/png/sprites/player/run/player-run-4.png",
-                "images/png/sprites/player/run/player-run-5.png",
-                "images/png/sprites/player/run/player-run-6.png"
-            ];
 
         PIXI.loader
             .add(idlePlayerFrames)
@@ -85,11 +45,15 @@
         function setup() {
             playerIdle = new PIXI.AnimatedSprite.fromFrames(idlePlayerFrames);
             playerIdle.animationSpeed = 0.167;
+            playerIdle.x = window.innerWidth / 2;
+            playerIdle.y = window.innerHeight / 2;
             playerIdle.play();
 
             playerRunning = new PIXI.AnimatedSprite.fromFrames(runningPlayerFrames);
             playerRunning.visible = false
             playerRunning.animationSpeed = 0.167;
+            playerRunning.x = window.innerWidth / 2;
+            playerRunning.y = window.innerHeight / 2;
             playerRunning.play();
 
             squirrelMan.stage.addChild(playerIdle);
@@ -100,7 +64,7 @@
             squirrelMan.ticker.add(delta => gameLoop(delta));
         }
 
-        let gameLoop = delta => {
+        function gameLoop(delta) {
             if(count > 50 && count < 200){
                 playerIdle.visible = false
                 playerRunning.visible = true
@@ -108,9 +72,24 @@
                 playerIdle.x += 1;
             }
 
-            if(count > 200){
+            if(count > 200 && count < 400){
                 playerIdle.visible = true
                 playerRunning.visible = false
+                playerIdle.scale.x = -1;
+            }
+
+            if(count > 400 && count < 600){
+                playerIdle.visible = false
+                playerRunning.visible = true
+                playerRunning.scale.x = -1;
+                playerRunning.x -= 1;
+                playerIdle.x -= 1;
+            }
+
+            if (count > 600) {
+                playerIdle.visible = true
+                playerRunning.visible = false
+                playerIdle.scale.x = 1;
             }
 
             count++;
